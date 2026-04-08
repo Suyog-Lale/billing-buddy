@@ -1,25 +1,59 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { BusinessProvider } from "@/contexts/BusinessContext";
+import AppLayout from "@/components/AppLayout";
+import Auth from "@/pages/Auth";
+import Dashboard from "@/pages/Dashboard";
+import Invoices from "@/pages/Invoices";
+import CreateInvoice from "@/pages/CreateInvoice";
+import Parties from "@/pages/Parties";
+import Items from "@/pages/Items";
+import Reports from "@/pages/Reports";
+import Settings from "@/pages/Settings";
+import BusinessForm from "@/pages/BusinessForm";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
+
+function ProtectedRoutes() {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="flex items-center justify-center min-h-screen"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (!user) return <Auth />;
+  return (
+    <BusinessProvider>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/invoices" element={<Invoices />} />
+          <Route path="/invoices/new" element={<CreateInvoice />} />
+          <Route path="/parties" element={<Parties />} />
+          <Route path="/items" element={<Items />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/business/new" element={<BusinessForm />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AppLayout>
+    </BusinessProvider>
+  );
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/*" element={<ProtectedRoutes />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
