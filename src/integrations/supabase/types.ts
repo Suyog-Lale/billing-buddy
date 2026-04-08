@@ -14,7 +14,331 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          gstin: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          phone: string | null
+          pincode: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          phone?: string | null
+          pincode?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          phone?: string | null
+          pincode?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      invoice_items: {
+        Row: {
+          cgst: number
+          created_at: string
+          discount: number | null
+          gst_rate: number
+          hsn_code: string | null
+          id: string
+          igst: number
+          invoice_id: string
+          item_id: string | null
+          name: string
+          price: number
+          quantity: number
+          sgst: number
+          total: number
+          unit: string | null
+        }
+        Insert: {
+          cgst?: number
+          created_at?: string
+          discount?: number | null
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          igst?: number
+          invoice_id: string
+          item_id?: string | null
+          name: string
+          price?: number
+          quantity?: number
+          sgst?: number
+          total?: number
+          unit?: string | null
+        }
+        Update: {
+          cgst?: number
+          created_at?: string
+          discount?: number | null
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          igst?: number
+          invoice_id?: string
+          item_id?: string | null
+          name?: string
+          price?: number
+          quantity?: number
+          sgst?: number
+          total?: number
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          amount_paid: number
+          business_id: string
+          cgst_total: number
+          created_at: string
+          date: string
+          discount_total: number
+          due_date: string | null
+          id: string
+          igst_total: number
+          invoice_number: string
+          is_interstate: boolean | null
+          notes: string | null
+          party_id: string | null
+          sgst_total: number
+          status: string
+          subtotal: number
+          total: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          business_id: string
+          cgst_total?: number
+          created_at?: string
+          date?: string
+          discount_total?: number
+          due_date?: string | null
+          id?: string
+          igst_total?: number
+          invoice_number: string
+          is_interstate?: boolean | null
+          notes?: string | null
+          party_id?: string | null
+          sgst_total?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          business_id?: string
+          cgst_total?: number
+          created_at?: string
+          date?: string
+          discount_total?: number
+          due_date?: string | null
+          id?: string
+          igst_total?: number
+          invoice_number?: string
+          is_interstate?: boolean | null
+          notes?: string | null
+          party_id?: string | null
+          sgst_total?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      items: {
+        Row: {
+          barcode: string | null
+          batch_number: string | null
+          business_id: string
+          category: string | null
+          created_at: string
+          expiry_date: string | null
+          gst_rate: number
+          hsn_code: string | null
+          id: string
+          low_stock_alert: number | null
+          name: string
+          purchase_price: number
+          sale_price: number
+          sku: string | null
+          stock_quantity: number
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          barcode?: string | null
+          batch_number?: string | null
+          business_id: string
+          category?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          low_stock_alert?: number | null
+          name: string
+          purchase_price?: number
+          sale_price?: number
+          sku?: string | null
+          stock_quantity?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          barcode?: string | null
+          batch_number?: string | null
+          business_id?: string
+          category?: string | null
+          created_at?: string
+          expiry_date?: string | null
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          low_stock_alert?: number | null
+          name?: string
+          purchase_price?: number
+          sale_price?: number
+          sku?: string | null
+          stock_quantity?: number
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parties: {
+        Row: {
+          address: string | null
+          balance: number | null
+          business_id: string
+          city: string | null
+          created_at: string
+          email: string | null
+          gstin: string | null
+          id: string
+          name: string
+          phone: string | null
+          pincode: string | null
+          state: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          balance?: number | null
+          business_id: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          pincode?: string | null
+          state?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          balance?: number | null
+          business_id?: string
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          gstin?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          pincode?: string | null
+          state?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parties_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
