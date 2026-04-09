@@ -15,6 +15,8 @@ import Items from "@/pages/Items";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
 import BusinessForm from "@/pages/BusinessForm";
+import Quotations from "@/pages/Quotations";
+import CreateQuotation from "@/pages/CreateQuotation";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,8 @@ function ProtectedRoutes() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/invoices/new" element={<CreateInvoice />} />
+          <Route path="/quotations" element={<Quotations />} />
+          <Route path="/quotations/new" element={<CreateQuotation />} />
           <Route path="/parties" element={<Parties />} />
           <Route path="/items" element={<Items />} />
           <Route path="/reports" element={<Reports />} />

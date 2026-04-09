@@ -11,7 +11,7 @@ import { Plus, Trash2, Loader2, FileText } from 'lucide-react';
 import ItemSearchSelect from '@/components/ItemSearchSelect';
 import type { Party, Item, InvoiceItem } from '@/lib/types';
 
-export default function CreateInvoice() {
+export default function CreateQuotation() {
   const { currentBusiness } = useBusiness();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -19,9 +19,8 @@ export default function CreateInvoice() {
   const [parties, setParties] = useState<Party[]>([]);
   const [items, setItems] = useState<Item[]>([]);
 
-  const [invoiceType, setInvoiceType] = useState<'sale' | 'purchase'>('sale');
   const [partyId, setPartyId] = useState('');
-  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [quoteNumber, setQuoteNumber] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [isInterstate, setIsInterstate] = useState(false);
   const [lines, setLines] = useState<InvoiceItem[]>([]);
@@ -32,12 +31,12 @@ export default function CreateInvoice() {
     Promise.all([
       supabase.from('parties').select('*').eq('business_id', bid),
       supabase.from('items').select('*').eq('business_id', bid),
-      supabase.from('invoices').select('id').eq('business_id', bid),
-    ]).then(([p, i, inv]) => {
+      supabase.from('quotations').select('id').eq('business_id', bid),
+    ]).then(([p, i, q]) => {
       setParties((p.data || []) as Party[]);
       setItems((i.data || []) as Item[]);
-      const count = (inv.data || []).length + 1;
-      setInvoiceNumber(`INV-${String(count).padStart(4, '0')}`);
+      const count = (q.data || []).length + 1;
+      setQuoteNumber(`QT-${String(count).padStart(4, '0')}`);
     });
   }, [currentBusiness]);
 
@@ -71,7 +70,7 @@ export default function CreateInvoice() {
   const selectItem = (idx: number, item: Item) => {
     setLines(prev => prev.map((l, i) => {
       if (i !== idx) return l;
-      const updated = { ...l, item_id: item.id, name: item.name, hsn_code: item.hsn_code || '', price: invoiceType === 'sale' ? item.sale_price : item.purchase_price, gst_rate: item.gst_rate, unit: item.unit };
+      const updated = { ...l, item_id: item.id, name: item.name, hsn_code: item.hsn_code || '', price: item.sale_price, gst_rate: item.gst_rate, unit: item.unit };
       return calcLine(updated);
     }));
   };
@@ -92,70 +91,65 @@ export default function CreateInvoice() {
       return;
     }
     setLoading(true);
-    const { data: inv, error } = await supabase.from('invoices').insert({
+    const { data: q, error } = await supabase.from('quotations').insert({
       business_id: currentBusiness.id,
       party_id: partyId || null,
-      invoice_number: invoiceNumber,
-      type: invoiceType,
+      quote_number: quoteNumber,
       date, is_interstate: isInterstate,
       subtotal, cgst_total: cgstTotal, sgst_total: sgstTotal, igst_total: igstTotal,
       discount_total: lines.reduce((s, l) => s + l.quantity * l.price * l.discount / 100, 0),
-      total: grandTotal, amount_paid: 0, status: 'unpaid',
+      total: grandTotal, status: 'draft',
     }).select('id').single();
 
-    if (error || !inv) {
+    if (error || !q) {
       toast({ title: 'Error', description: error?.message || 'Failed', variant: 'destructive' });
       setLoading(false);
       return;
     }
 
-    await supabase.from('invoice_items').insert(lines.map(l => ({ ...l, invoice_id: inv.id })));
-
-    // Update stock
-    for (const l of lines) {
-      if (l.item_id) {
-        const item = items.find(i => i.id === l.item_id);
-        if (item) {
-          const newQty = invoiceType === 'sale' ? item.stock_quantity - l.quantity : item.stock_quantity + l.quantity;
-          await supabase.from('items').update({ stock_quantity: Math.max(0, newQty) }).eq('id', l.item_id);
-        }
-      }
-    }
+    await supabase.from('quotation_items').insert(lines.map(l => ({
+      quotation_id: q.id,
+      item_id: l.item_id,
+      name: l.name,
+      hsn_code: l.hsn_code,
+      quantity: l.quantity,
+      unit: l.unit,
+      price: l.price,
+      discount: l.discount,
+      gst_rate: l.gst_rate,
+      cgst: l.cgst,
+      sgst: l.sgst,
+      igst: l.igst,
+      total: l.total,
+    })));
 
     setLoading(false);
-    toast({ title: 'Invoice created!' });
-    navigate('/invoices');
+    toast({ title: 'Quotation saved!' });
+    navigate('/quotations');
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
       <h1 className="font-heading text-2xl md:text-3xl font-bold flex items-center gap-2">
-        <FileText className="h-7 w-7" /> Create Invoice
+        <FileText className="h-7 w-7" /> New Quotation
       </h1>
 
       <Card className="glass-card">
         <CardContent className="p-4 md:p-6">
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div>
-              <Label>Type</Label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={invoiceType} onChange={e => setInvoiceType(e.target.value as any)}>
-                <option value="sale">Sale</option>
-                <option value="purchase">Purchase</option>
-              </select>
-            </div>
-            <div>
-              <Label>Invoice #</Label>
-              <Input value={invoiceNumber} onChange={e => setInvoiceNumber(e.target.value)} />
+              <Label>Quote #</Label>
+              <Input value={quoteNumber} onChange={e => setQuoteNumber(e.target.value)} />
             </div>
             <div>
               <Label>Date</Label>
               <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
             </div>
             <div>
-              <Label>Party</Label>
+              <Label>Customer</Label>
               <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={partyId} onChange={e => setPartyId(e.target.value)}>
                 <option value="">Walk-in</option>
-                {parties.filter(p => invoiceType === 'sale' ? p.type === 'customer' : p.type === 'supplier').map(p => (
+                {parties.filter(p => p.type === 'customer').map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
@@ -173,7 +167,6 @@ export default function CreateInvoice() {
         </CardContent>
       </Card>
 
-      {/* Line Items */}
       <Card className="glass-card">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-heading text-lg">Items</CardTitle>
@@ -228,7 +221,6 @@ export default function CreateInvoice() {
         </CardContent>
       </Card>
 
-      {/* Summary */}
       {lines.length > 0 && (
         <Card className="glass-card">
           <CardContent className="p-4 md:p-6">
@@ -242,9 +234,9 @@ export default function CreateInvoice() {
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
-              <Button variant="outline" onClick={() => navigate('/invoices')}>Cancel</Button>
+              <Button variant="outline" onClick={() => navigate('/quotations')}>Cancel</Button>
               <Button onClick={handleSubmit} disabled={loading}>
-                {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save Invoice
+                {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save Quotation
               </Button>
             </div>
           </CardContent>
