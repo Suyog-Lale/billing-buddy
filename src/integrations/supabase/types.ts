@@ -339,6 +339,150 @@ export type Database = {
           },
         ]
       }
+      quotation_items: {
+        Row: {
+          cgst: number
+          created_at: string
+          discount: number | null
+          gst_rate: number
+          hsn_code: string | null
+          id: string
+          igst: number
+          item_id: string | null
+          name: string
+          price: number
+          quantity: number
+          quotation_id: string
+          sgst: number
+          total: number
+          unit: string | null
+        }
+        Insert: {
+          cgst?: number
+          created_at?: string
+          discount?: number | null
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          igst?: number
+          item_id?: string | null
+          name: string
+          price?: number
+          quantity?: number
+          quotation_id: string
+          sgst?: number
+          total?: number
+          unit?: string | null
+        }
+        Update: {
+          cgst?: number
+          created_at?: string
+          discount?: number | null
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          igst?: number
+          item_id?: string | null
+          name?: string
+          price?: number
+          quantity?: number
+          quotation_id?: string
+          sgst?: number
+          total?: number
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotation_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotations: {
+        Row: {
+          business_id: string
+          cgst_total: number
+          created_at: string
+          date: string
+          discount_total: number
+          due_date: string | null
+          id: string
+          igst_total: number
+          is_interstate: boolean | null
+          notes: string | null
+          party_id: string | null
+          quote_number: string
+          sgst_total: number
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          cgst_total?: number
+          created_at?: string
+          date?: string
+          discount_total?: number
+          due_date?: string | null
+          id?: string
+          igst_total?: number
+          is_interstate?: boolean | null
+          notes?: string | null
+          party_id?: string | null
+          quote_number: string
+          sgst_total?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          cgst_total?: number
+          created_at?: string
+          date?: string
+          discount_total?: number
+          due_date?: string | null
+          id?: string
+          igst_total?: number
+          is_interstate?: boolean | null
+          notes?: string | null
+          party_id?: string | null
+          quote_number?: string
+          sgst_total?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "parties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
