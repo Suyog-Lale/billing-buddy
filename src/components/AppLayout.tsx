@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBusiness } from '@/contexts/BusinessContext';
 import {
   LayoutDashboard, FileText, Users, Package, BarChart3,
-  Menu, X, LogOut, ChevronDown, Building2, Plus, Settings
+  Menu, X, LogOut, ChevronDown, Building2, Plus, Settings, ClipboardList
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +14,7 @@ import {
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/invoices', icon: FileText, label: 'Invoices' },
+  { to: '/quotations', icon: ClipboardList, label: 'Quotations' },
   { to: '/parties', icon: Users, label: 'Parties' },
   { to: '/items', icon: Package, label: 'Items' },
   { to: '/reports', icon: BarChart3, label: 'Reports' },

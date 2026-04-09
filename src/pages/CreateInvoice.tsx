@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2, Loader2, FileText } from 'lucide-react';
+import ItemSearchSelect from '@/components/ItemSearchSelect';
 import type { Party, Item, InvoiceItem } from '@/lib/types';
 
 export default function CreateInvoice() {
@@ -67,14 +68,16 @@ export default function CreateInvoice() {
     }));
   };
 
-  const selectItem = (idx: number, itemId: string) => {
-    const item = items.find(i => i.id === itemId);
-    if (!item) return;
+  const selectItem = (idx: number, item: Item) => {
     setLines(prev => prev.map((l, i) => {
       if (i !== idx) return l;
       const updated = { ...l, item_id: item.id, name: item.name, hsn_code: item.hsn_code || '', price: invoiceType === 'sale' ? item.sale_price : item.purchase_price, gst_rate: item.gst_rate, unit: item.unit };
       return calcLine(updated);
     }));
+  };
+
+  const handleNewItem = (item: Item) => {
+    setItems(prev => [...prev, item]);
   };
 
   const subtotal = lines.reduce((s, l) => s + l.quantity * l.price * (1 - l.discount / 100), 0);
@@ -183,10 +186,12 @@ export default function CreateInvoice() {
               <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                 <div className="col-span-2">
                   <Label className="text-xs">Item</Label>
-                  <select className="flex h-9 w-full rounded-md border border-input bg-background px-2 py-1 text-sm" value={line.item_id || ''} onChange={e => selectItem(idx, e.target.value)}>
-                    <option value="">Select item...</option>
-                    {items.map(i => <option key={i.id} value={i.id}>{i.name} {i.barcode ? `(${i.barcode})` : ''}</option>)}
-                  </select>
+                  <ItemSearchSelect
+                    items={items}
+                    value={line.item_id}
+                    onSelect={(item) => selectItem(idx, item)}
+                    onItemCreated={(item) => { handleNewItem(item); selectItem(idx, item); }}
+                  />
                 </div>
                 <div>
                   <Label className="text-xs">HSN</Label>
